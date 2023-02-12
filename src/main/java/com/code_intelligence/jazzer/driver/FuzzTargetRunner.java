@@ -111,9 +111,7 @@ public final class FuzzTargetRunner {
     Runtime.getRuntime().addShutdownHook(new Thread(FuzzTargetRunner::shutdown));
   }
 
-  /**
-   * A test-only convenience wrapper around {@link #runOne(long, int)}.
-   */
+  /** A test-only convenience wrapper around {@link #runOne(long, int)}. */
   static int runOne(byte[] data) {
     long dataPtr = UNSAFE.allocateMemory(data.length);
     UNSAFE.copyMemory(data, BYTE_ARRAY_OFFSET, null, dataPtr, data.length);
@@ -131,7 +129,7 @@ public final class FuzzTargetRunner {
    *     execution
    * @param dataLength length of the fuzzer input
    * @return the value that the native LLVMFuzzerTestOneInput function should return. Currently,
-   *         this is always 0. The function may exit the process instead of returning.
+   *     this is always 0. The function may exit the process instead of returning.
    */
   private static int runOne(long dataPtr, int dataLength) {
     Throwable finding = null;
@@ -222,16 +220,17 @@ public final class FuzzTargetRunner {
       // _Exit rather than System.exit to not trigger libFuzzer's exit handlers.
       if (!Opt.autofuzz.isEmpty() && Opt.dedup) {
         Log.println("");
-        Log.info(String.format(
-            "To continue fuzzing past this particular finding, rerun with the following additional argument:"
-                + "%n%n    --ignore=%s%n%n"
-                + "To ignore all findings of this kind, rerun with the following additional argument:"
-                + "%n%n    --autofuzz_ignore=%s",
-            ignoredTokens.stream()
-                .map(token -> Long.toUnsignedString(token, 16))
-                .collect(joining(",")),
-            Stream.concat(Opt.autofuzzIgnore.stream(), Stream.of(finding.getClass().getName()))
-                .collect(joining(","))));
+        Log.info(
+            String.format(
+                "To continue fuzzing past this particular finding, rerun with the following"
+                    + " additional argument:%n%n    --ignore=%s%n%nTo ignore all findings of this"
+                    + " kind, rerun with the following additional argument:%n%n   "
+                    + " --autofuzz_ignore=%s",
+                ignoredTokens.stream()
+                    .map(token -> Long.toUnsignedString(token, 16))
+                    .collect(joining(",")),
+                Stream.concat(Opt.autofuzzIgnore.stream(), Stream.of(finding.getClass().getName()))
+                    .collect(joining(","))));
       }
       System.exit(JAZZER_FINDING_EXIT_CODE);
       throw new IllegalStateException("Not reached");
@@ -245,15 +244,15 @@ public final class FuzzTargetRunner {
   public static int startLibFuzzer(List<String> args) {
     SignalHandler.initialize();
     return startLibFuzzer(
-        args.stream().map(str -> str.getBytes(StandardCharsets.UTF_8)).toArray(byte[][] ::new));
+        args.stream().map(str -> str.getBytes(StandardCharsets.UTF_8)).toArray(byte[][]::new));
   }
 
   /**
    * Registers a custom handler for findings.
    *
    * @param findingHandler a consumer for the finding that returns true if the fuzzer should
-   *     continue fuzzing and false
-   *                       if it should return from {@link FuzzTargetRunner#startLibFuzzer(List)}.
+   *     continue fuzzing and false if it should return from {@link
+   *     FuzzTargetRunner#startLibFuzzer(List)}.
    */
   public static void registerFindingHandler(Predicate<Throwable> findingHandler) {
     FuzzTargetRunner.findingHandler = findingHandler;
@@ -318,8 +317,9 @@ public final class FuzzTargetRunner {
         // Expected.
       }
       try {
-        base64Data = RecordingFuzzedDataProvider.serializeFuzzedDataProviderProxy(
-            recordingFuzzedDataProvider);
+        base64Data =
+            RecordingFuzzedDataProvider.serializeFuzzedDataProviderProxy(
+                recordingFuzzedDataProvider);
       } catch (IOException e) {
         Log.error("Failed to create reproducer", e);
         // Don't let libFuzzer print a native stack trace.

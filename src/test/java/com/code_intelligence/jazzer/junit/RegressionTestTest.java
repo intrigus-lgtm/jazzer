@@ -88,167 +88,247 @@ public class RegressionTestTest {
     for (String line : stderrLines) {
       System.err.println(line);
     }
-    assertThat(Arrays.stream(stderrLines)
-                   .filter(line -> line.startsWith("WARN:") || line.startsWith("ERROR:")))
+    assertThat(
+            Arrays.stream(stderrLines)
+                .filter(line -> line.startsWith("WARN:") || line.startsWith("ERROR:")))
         .isEmpty();
 
-    results.containerEvents().debug().assertEventsMatchLoosely(
-        event(type(STARTED), container(ENGINE)),
-        event(
-            type(STARTED), container(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, NO_CRASH_FUZZ))),
-        event(type(REPORTING_ENTRY_PUBLISHED),
-            container(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, NO_CRASH_FUZZ))),
-        event(type(FINISHED),
-            container(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, NO_CRASH_FUZZ)),
-            finishedSuccessfully()),
-        event(type(STARTED), container(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ))),
-        event(type(REPORTING_ENTRY_PUBLISHED),
-            container(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ))),
-        event(type(FINISHED), container(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ)),
-            finishedSuccessfully()),
-        event(type(FINISHED), container(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS)),
-            finishedSuccessfully()),
-        event(type(STARTED), container(uniqueIdSubstrings(ENGINE, AUTOFUZZ_WITH_CORPUS_FUZZ_TEST))),
-        event(type(STARTED),
-            container(
-                uniqueIdSubstrings(ENGINE, AUTOFUZZ_WITH_CORPUS_FUZZ_TEST, AUTOFUZZ_WITH_CORPUS))),
-        event(type(REPORTING_ENTRY_PUBLISHED),
-            container(
-                uniqueIdSubstrings(ENGINE, AUTOFUZZ_WITH_CORPUS_FUZZ_TEST, AUTOFUZZ_WITH_CORPUS))),
-        event(type(FINISHED),
-            container(
-                uniqueIdSubstrings(ENGINE, AUTOFUZZ_WITH_CORPUS_FUZZ_TEST, AUTOFUZZ_WITH_CORPUS)),
-            finishedSuccessfully()),
-        event(type(FINISHED), container(uniqueIdSubstrings(ENGINE, AUTOFUZZ_WITH_CORPUS_FUZZ_TEST)),
-            finishedSuccessfully()),
-        event(type(STARTED), container(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST))),
-        event(type(STARTED), container(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST, BYTE_FUZZ))),
-        event(type(REPORTING_ENTRY_PUBLISHED),
-            container(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST, BYTE_FUZZ))),
-        event(type(FINISHED), container(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST, BYTE_FUZZ)),
-            finishedSuccessfully()),
-        event(type(STARTED), container(uniqueIdSubstrings(ENGINE, INVALID_FUZZ_TESTS))),
-        event(type(STARTED),
-            container(
-                uniqueIdSubstrings(ENGINE, INVALID_FUZZ_TESTS, INVALID_PARAMETER_COUNT_FUZZ))),
-        event(type(FINISHED),
-            container(uniqueIdSubstrings(ENGINE, INVALID_FUZZ_TESTS, INVALID_PARAMETER_COUNT_FUZZ)),
-            finishedWithFailure(instanceOf(IllegalArgumentException.class),
-                message("Methods annotated with @FuzzTest must take at least one parameter"))),
-        event(type(FINISHED), container(uniqueIdSubstrings(ENGINE, INVALID_FUZZ_TESTS)),
-            finishedSuccessfully()),
-        event(type(FINISHED), container(ENGINE), finishedSuccessfully()));
+    results
+        .containerEvents()
+        .debug()
+        .assertEventsMatchLoosely(
+            event(type(STARTED), container(ENGINE)),
+            event(
+                type(STARTED),
+                container(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, NO_CRASH_FUZZ))),
+            event(
+                type(REPORTING_ENTRY_PUBLISHED),
+                container(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, NO_CRASH_FUZZ))),
+            event(
+                type(FINISHED),
+                container(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, NO_CRASH_FUZZ)),
+                finishedSuccessfully()),
+            event(
+                type(STARTED), container(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ))),
+            event(
+                type(REPORTING_ENTRY_PUBLISHED),
+                container(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ))),
+            event(
+                type(FINISHED),
+                container(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ)),
+                finishedSuccessfully()),
+            event(
+                type(FINISHED),
+                container(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS)),
+                finishedSuccessfully()),
+            event(
+                type(STARTED),
+                container(uniqueIdSubstrings(ENGINE, AUTOFUZZ_WITH_CORPUS_FUZZ_TEST))),
+            event(
+                type(STARTED),
+                container(
+                    uniqueIdSubstrings(
+                        ENGINE, AUTOFUZZ_WITH_CORPUS_FUZZ_TEST, AUTOFUZZ_WITH_CORPUS))),
+            event(
+                type(REPORTING_ENTRY_PUBLISHED),
+                container(
+                    uniqueIdSubstrings(
+                        ENGINE, AUTOFUZZ_WITH_CORPUS_FUZZ_TEST, AUTOFUZZ_WITH_CORPUS))),
+            event(
+                type(FINISHED),
+                container(
+                    uniqueIdSubstrings(
+                        ENGINE, AUTOFUZZ_WITH_CORPUS_FUZZ_TEST, AUTOFUZZ_WITH_CORPUS)),
+                finishedSuccessfully()),
+            event(
+                type(FINISHED),
+                container(uniqueIdSubstrings(ENGINE, AUTOFUZZ_WITH_CORPUS_FUZZ_TEST)),
+                finishedSuccessfully()),
+            event(type(STARTED), container(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST))),
+            event(type(STARTED), container(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST, BYTE_FUZZ))),
+            event(
+                type(REPORTING_ENTRY_PUBLISHED),
+                container(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST, BYTE_FUZZ))),
+            event(
+                type(FINISHED),
+                container(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST, BYTE_FUZZ)),
+                finishedSuccessfully()),
+            event(type(STARTED), container(uniqueIdSubstrings(ENGINE, INVALID_FUZZ_TESTS))),
+            event(
+                type(STARTED),
+                container(
+                    uniqueIdSubstrings(ENGINE, INVALID_FUZZ_TESTS, INVALID_PARAMETER_COUNT_FUZZ))),
+            event(
+                type(FINISHED),
+                container(
+                    uniqueIdSubstrings(ENGINE, INVALID_FUZZ_TESTS, INVALID_PARAMETER_COUNT_FUZZ)),
+                finishedWithFailure(
+                    instanceOf(IllegalArgumentException.class),
+                    message("Methods annotated with @FuzzTest must take at least one parameter"))),
+            event(
+                type(FINISHED),
+                container(uniqueIdSubstrings(ENGINE, INVALID_FUZZ_TESTS)),
+                finishedSuccessfully()),
+            event(type(FINISHED), container(ENGINE), finishedSuccessfully()));
 
-    results.testEvents().debug().assertEventsMatchLoosely(
-        event(type(DYNAMIC_TEST_REGISTERED),
-            test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
-            displayName("<empty input>")),
-        event(type(STARTED),
-            test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
-            displayName("<empty input>")),
-        event(type(FINISHED),
-            test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
-            displayName("<empty input>"),
-            finishedWithFailure(instanceOf(FuzzerSecurityIssueMedium.class))),
-        event(type(DYNAMIC_TEST_REGISTERED),
-            test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
-            displayName("no_crash")),
-        event(type(STARTED),
-            test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
-            displayName("no_crash")),
-        event(type(FINISHED),
-            test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
-            displayName("no_crash"), finishedSuccessfully()),
-        event(type(DYNAMIC_TEST_REGISTERED),
-            test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
-            displayName("assert")),
-        event(type(STARTED),
-            test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
-            displayName("assert")),
-        event(type(FINISHED),
-            test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
-            displayName("assert"), finishedWithFailure(instanceOf(AssertionFailedError.class))),
-        event(type(DYNAMIC_TEST_REGISTERED),
-            test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
-            displayName("honeypot")),
-        event(type(STARTED),
-            test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
-            displayName("honeypot")),
-        event(type(FINISHED),
-            test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
-            displayName("honeypot"),
-            finishedWithFailure(instanceOf(FuzzerSecurityIssueHigh.class))),
-        event(type(DYNAMIC_TEST_REGISTERED),
-            test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
-            displayName("sanitizer_internal_class")),
-        event(type(STARTED),
-            test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
-            displayName("sanitizer_internal_class")),
-        event(type(FINISHED),
-            test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
-            displayName("sanitizer_internal_class"),
-            finishedWithFailure(instanceOf(FuzzerSecurityIssueCritical.class))),
-        event(type(DYNAMIC_TEST_REGISTERED),
-            test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
-            displayName("sanitizer_user_class")),
-        event(type(STARTED),
-            test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
-            displayName("sanitizer_user_class")),
-        event(type(FINISHED),
-            test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
-            displayName("sanitizer_user_class"),
-            finishedWithFailure(instanceOf(FuzzerSecurityIssueLow.class))),
-        event(type(DYNAMIC_TEST_REGISTERED),
-            test(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST, BYTE_FUZZ, INVOCATION)),
-            displayName("<empty input>")),
-        event(type(STARTED),
-            test(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST, BYTE_FUZZ, INVOCATION)),
-            displayName("<empty input>")),
-        event(type(FINISHED),
-            test(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST, BYTE_FUZZ, INVOCATION)),
-            displayName("<empty input>"), finishedSuccessfully()),
-        event(type(DYNAMIC_TEST_REGISTERED),
-            test(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST, BYTE_FUZZ, INVOCATION)),
-            displayName("succeeds")),
-        event(type(STARTED),
-            test(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST, BYTE_FUZZ, INVOCATION)),
-            displayName("succeeds")),
-        event(type(FINISHED),
-            test(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST, BYTE_FUZZ, INVOCATION)),
-            displayName("succeeds"), finishedSuccessfully()),
-        event(type(DYNAMIC_TEST_REGISTERED),
-            test(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST, BYTE_FUZZ, INVOCATION)),
-            displayName("fails")),
-        event(type(STARTED),
-            test(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST, BYTE_FUZZ, INVOCATION)),
-            displayName("fails")),
-        event(type(FINISHED),
-            test(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST, BYTE_FUZZ, INVOCATION)),
-            displayName("fails"), finishedWithFailure(instanceOf(AssertionFailedError.class))),
-        event(type(DYNAMIC_TEST_REGISTERED),
-            test(uniqueIdSubstrings(
-                ENGINE, AUTOFUZZ_WITH_CORPUS_FUZZ_TEST, AUTOFUZZ_WITH_CORPUS, INVOCATION)),
-            displayName("<empty input>")),
-        event(type(STARTED),
-            test(uniqueIdSubstrings(
-                ENGINE, AUTOFUZZ_WITH_CORPUS_FUZZ_TEST, AUTOFUZZ_WITH_CORPUS, INVOCATION)),
-            displayName("<empty input>")),
-        event(type(FINISHED),
-            test(uniqueIdSubstrings(
-                ENGINE, AUTOFUZZ_WITH_CORPUS_FUZZ_TEST, AUTOFUZZ_WITH_CORPUS, INVOCATION)),
-            displayName("<empty input>"), finishedSuccessfully()),
-        event(type(DYNAMIC_TEST_REGISTERED),
-            test(uniqueIdSubstrings(
-                ENGINE, AUTOFUZZ_WITH_CORPUS_FUZZ_TEST, AUTOFUZZ_WITH_CORPUS, INVOCATION)),
-            displayName("crashing_input")),
-        event(type(STARTED),
-            test(uniqueIdSubstrings(
-                ENGINE, AUTOFUZZ_WITH_CORPUS_FUZZ_TEST, AUTOFUZZ_WITH_CORPUS, INVOCATION)),
-            displayName("crashing_input")),
-        event(type(FINISHED),
-            test(uniqueIdSubstrings(
-                ENGINE, AUTOFUZZ_WITH_CORPUS_FUZZ_TEST, AUTOFUZZ_WITH_CORPUS, INVOCATION)),
-            displayName("crashing_input"),
-            finishedWithFailure(instanceOf(RuntimeException.class))));
+    results
+        .testEvents()
+        .debug()
+        .assertEventsMatchLoosely(
+            event(
+                type(DYNAMIC_TEST_REGISTERED),
+                test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
+                displayName("<empty input>")),
+            event(
+                type(STARTED),
+                test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
+                displayName("<empty input>")),
+            event(
+                type(FINISHED),
+                test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
+                displayName("<empty input>"),
+                finishedWithFailure(instanceOf(FuzzerSecurityIssueMedium.class))),
+            event(
+                type(DYNAMIC_TEST_REGISTERED),
+                test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
+                displayName("no_crash")),
+            event(
+                type(STARTED),
+                test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
+                displayName("no_crash")),
+            event(
+                type(FINISHED),
+                test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
+                displayName("no_crash"),
+                finishedSuccessfully()),
+            event(
+                type(DYNAMIC_TEST_REGISTERED),
+                test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
+                displayName("assert")),
+            event(
+                type(STARTED),
+                test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
+                displayName("assert")),
+            event(
+                type(FINISHED),
+                test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
+                displayName("assert"),
+                finishedWithFailure(instanceOf(AssertionFailedError.class))),
+            event(
+                type(DYNAMIC_TEST_REGISTERED),
+                test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
+                displayName("honeypot")),
+            event(
+                type(STARTED),
+                test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
+                displayName("honeypot")),
+            event(
+                type(FINISHED),
+                test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
+                displayName("honeypot"),
+                finishedWithFailure(instanceOf(FuzzerSecurityIssueHigh.class))),
+            event(
+                type(DYNAMIC_TEST_REGISTERED),
+                test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
+                displayName("sanitizer_internal_class")),
+            event(
+                type(STARTED),
+                test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
+                displayName("sanitizer_internal_class")),
+            event(
+                type(FINISHED),
+                test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
+                displayName("sanitizer_internal_class"),
+                finishedWithFailure(instanceOf(FuzzerSecurityIssueCritical.class))),
+            event(
+                type(DYNAMIC_TEST_REGISTERED),
+                test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
+                displayName("sanitizer_user_class")),
+            event(
+                type(STARTED),
+                test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
+                displayName("sanitizer_user_class")),
+            event(
+                type(FINISHED),
+                test(uniqueIdSubstrings(ENGINE, VALID_FUZZ_TESTS, DATA_FUZZ, INVOCATION)),
+                displayName("sanitizer_user_class"),
+                finishedWithFailure(instanceOf(FuzzerSecurityIssueLow.class))),
+            event(
+                type(DYNAMIC_TEST_REGISTERED),
+                test(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST, BYTE_FUZZ, INVOCATION)),
+                displayName("<empty input>")),
+            event(
+                type(STARTED),
+                test(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST, BYTE_FUZZ, INVOCATION)),
+                displayName("<empty input>")),
+            event(
+                type(FINISHED),
+                test(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST, BYTE_FUZZ, INVOCATION)),
+                displayName("<empty input>"),
+                finishedSuccessfully()),
+            event(
+                type(DYNAMIC_TEST_REGISTERED),
+                test(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST, BYTE_FUZZ, INVOCATION)),
+                displayName("succeeds")),
+            event(
+                type(STARTED),
+                test(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST, BYTE_FUZZ, INVOCATION)),
+                displayName("succeeds")),
+            event(
+                type(FINISHED),
+                test(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST, BYTE_FUZZ, INVOCATION)),
+                displayName("succeeds"),
+                finishedSuccessfully()),
+            event(
+                type(DYNAMIC_TEST_REGISTERED),
+                test(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST, BYTE_FUZZ, INVOCATION)),
+                displayName("fails")),
+            event(
+                type(STARTED),
+                test(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST, BYTE_FUZZ, INVOCATION)),
+                displayName("fails")),
+            event(
+                type(FINISHED),
+                test(uniqueIdSubstrings(ENGINE, BYTE_FUZZ_TEST, BYTE_FUZZ, INVOCATION)),
+                displayName("fails"),
+                finishedWithFailure(instanceOf(AssertionFailedError.class))),
+            event(
+                type(DYNAMIC_TEST_REGISTERED),
+                test(
+                    uniqueIdSubstrings(
+                        ENGINE, AUTOFUZZ_WITH_CORPUS_FUZZ_TEST, AUTOFUZZ_WITH_CORPUS, INVOCATION)),
+                displayName("<empty input>")),
+            event(
+                type(STARTED),
+                test(
+                    uniqueIdSubstrings(
+                        ENGINE, AUTOFUZZ_WITH_CORPUS_FUZZ_TEST, AUTOFUZZ_WITH_CORPUS, INVOCATION)),
+                displayName("<empty input>")),
+            event(
+                type(FINISHED),
+                test(
+                    uniqueIdSubstrings(
+                        ENGINE, AUTOFUZZ_WITH_CORPUS_FUZZ_TEST, AUTOFUZZ_WITH_CORPUS, INVOCATION)),
+                displayName("<empty input>"),
+                finishedSuccessfully()),
+            event(
+                type(DYNAMIC_TEST_REGISTERED),
+                test(
+                    uniqueIdSubstrings(
+                        ENGINE, AUTOFUZZ_WITH_CORPUS_FUZZ_TEST, AUTOFUZZ_WITH_CORPUS, INVOCATION)),
+                displayName("crashing_input")),
+            event(
+                type(STARTED),
+                test(
+                    uniqueIdSubstrings(
+                        ENGINE, AUTOFUZZ_WITH_CORPUS_FUZZ_TEST, AUTOFUZZ_WITH_CORPUS, INVOCATION)),
+                displayName("crashing_input")),
+            event(
+                type(FINISHED),
+                test(
+                    uniqueIdSubstrings(
+                        ENGINE, AUTOFUZZ_WITH_CORPUS_FUZZ_TEST, AUTOFUZZ_WITH_CORPUS, INVOCATION)),
+                displayName("crashing_input"),
+                finishedWithFailure(instanceOf(RuntimeException.class))));
   }
 }

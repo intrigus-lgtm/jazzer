@@ -31,31 +31,34 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 final class OptParser {
-  private static final String[] HELP_HEADER = new String[] {
-      "A coverage-guided, in-process fuzzer for the JVM",
-      "",
-      "Usage:",
-      String.format(
-          "  java -cp jazzer.jar[%cclasspath_entries] com.code_intelligence.jazzer.Jazzer --target_class=<target class> [args...]",
-          File.separatorChar),
-      String.format(
-          "  java -cp jazzer.jar[%cclasspath_entries] com.code_intelligence.jazzer.Jazzer --autofuzz=<method reference> [args...]",
-          File.separatorChar),
-      "",
-      "In addition to the options listed below, Jazzer also accepts all",
-      "libFuzzer options described at:",
-      "  https://llvm.org/docs/LibFuzzer.html#options",
-      "",
-      "Options:",
-  };
+  private static final String[] HELP_HEADER =
+      new String[] {
+        "A coverage-guided, in-process fuzzer for the JVM",
+        "",
+        "Usage:",
+        String.format(
+            "  java -cp jazzer.jar[%cclasspath_entries] com.code_intelligence.jazzer.Jazzer"
+                + " --target_class=<target class> [args...]",
+            File.separatorChar),
+        String.format(
+            "  java -cp jazzer.jar[%cclasspath_entries] com.code_intelligence.jazzer.Jazzer"
+                + " --autofuzz=<method reference> [args...]",
+            File.separatorChar),
+        "",
+        "In addition to the options listed below, Jazzer also accepts all",
+        "libFuzzer options described at:",
+        "  https://llvm.org/docs/LibFuzzer.html#options",
+        "",
+        "Options:",
+      };
   private static final String OPTIONS_PREFIX = "jazzer.";
 
   // All supported arguments are added to this set by the individual *Setting methods.
   private static final Map<String, OptDetails> knownArgs = new TreeMap<>();
 
   static String getHelpText() {
-    return Stream
-        .concat(Arrays.stream(HELP_HEADER),
+    return Stream.concat(
+            Arrays.stream(HELP_HEADER),
             knownArgs.values().stream().filter(Objects::nonNull).map(OptDetails::toString))
         .collect(Collectors.joining("\n\n"));
   }
@@ -74,7 +77,8 @@ final class OptParser {
   }
 
   static List<String> stringListSetting(String name, char separator, String description) {
-    knownArgs.put(name,
+    knownArgs.put(
+        name,
         OptDetails.create(
             name, String.format("list separated by '%c'", separator), "", description));
     String value = System.getProperty(OPTIONS_PREFIX + name);
@@ -105,21 +109,22 @@ final class OptParser {
   }
 
   static void failOnUnknownArgument() {
-    System.getProperties()
-        .keySet()
-        .stream()
+    System.getProperties().keySet().stream()
         .map(key -> (String) key)
         .filter(key -> key.startsWith("jazzer."))
         .map(key -> key.substring("jazzer.".length()))
         .filter(key -> !key.startsWith("internal."))
         .filter(key -> !knownArgs.containsKey(key))
         .findFirst()
-        .ifPresent(unknownArg -> {
-          Log.error(String.format(
-              "Unknown argument '--%1$s' or property 'jazzer.%1$s' (list all available arguments with --help)",
-              unknownArg));
-          exit(1);
-        });
+        .ifPresent(
+            unknownArg -> {
+              Log.error(
+                  String.format(
+                      "Unknown argument '--%1$s' or property 'jazzer.%1$s' (list all available"
+                          + " arguments with --help)",
+                      unknownArg));
+              exit(1);
+            });
   }
 
   /**
@@ -177,8 +182,11 @@ final class OptParser {
       if (description == null) {
         return null;
       }
-      return new OptDetails(checkNotNullOrEmpty(name, "name"), checkNotNullOrEmpty(type, "type"),
-          defaultValue, checkNotNullOrEmpty(description, "description"));
+      return new OptDetails(
+          checkNotNullOrEmpty(name, "name"),
+          checkNotNullOrEmpty(type, "type"),
+          defaultValue,
+          checkNotNullOrEmpty(description, "description"));
     }
 
     @Override

@@ -42,10 +42,10 @@ import java.util.stream.Stream;
  * <p>Every public field should be deeply immutable.
  *
  * <p>This class is loaded twice: As it is used in {@link FuzzTargetRunner}, it is loaded in the
- * class loader that loads {@link Driver}. It is also used in
- * {@link com.code_intelligence.jazzer.agent.Agent} after the agent JAR has been added to the
- * bootstrap classpath and thus is loaded again in the bootstrap loader. This is not a problem since
- * it only provides immutable fields and has no non-fatal side effects.
+ * class loader that loads {@link Driver}. It is also used in {@link
+ * com.code_intelligence.jazzer.agent.Agent} after the agent JAR has been added to the bootstrap
+ * classpath and thus is loaded again in the bootstrap loader. This is not a problem since it only
+ * provides immutable fields and has no non-fatal side effects.
  */
 public final class Opt {
   static {
@@ -56,10 +56,13 @@ public final class Opt {
     // The following arguments are interpreted by the native launcher only. They do appear in the
     // help text, but aren't read by the driver.
     stringListSetting("cp", "The class path to use for fuzzing (native launcher only)");
-    stringListSetting("jvm_args",
+    stringListSetting(
+        "jvm_args",
         "Arguments to pass to the JVM (separator can be escaped with '\\', native launcher only)");
-    stringListSetting("additional_jvm_args",
-        "Additional arguments to pass to the JVM (separator can be escaped with '\\', native launcher only)");
+    stringListSetting(
+        "additional_jvm_args",
+        "Additional arguments to pass to the JVM (separator can be escaped with '\\', native"
+            + " launcher only)");
     stringSetting(
         "agent_path", null, "Custom path to jazzer_agent_deploy.jar (native launcher only)");
     // The following arguments are interpreted by the Jazzer main class directly as they require
@@ -68,61 +71,106 @@ public final class Opt {
         "asan", false, "Allow fuzzing of native libraries compiled with '-fsanitize=address'");
     boolSetting(
         "ubsan", false, "Allow fuzzing of native libraries compiled with '-fsanitize=undefined'");
-    boolSetting("native", false,
-        "Allow fuzzing of native libraries compiled with '-fsanitize=fuzzer' (implied by --asan and --ubsan)");
+    boolSetting(
+        "native",
+        false,
+        "Allow fuzzing of native libraries compiled with '-fsanitize=fuzzer' (implied by --asan and"
+            + " --ubsan)");
   }
 
-  public static final String autofuzz = stringSetting("autofuzz", "",
-      "Fully qualified reference (optionally with a Javadoc-style signature) to a "
-          + "method on the class path to be fuzzed with automatically generated arguments "
-          + "(examples: java.lang.System.out::println, java.lang.String::new(byte[]))");
-  public static final List<String> autofuzzIgnore = stringListSetting("autofuzz_ignore", ',',
-      "Fully qualified names of exception classes to ignore during fuzzing");
-  public static final String coverageDump = stringSetting("coverage_dump", "",
-      "Path to write a JaCoCo .exec file to when the fuzzer exits (if non-empty)");
-  public static final String coverageReport = stringSetting("coverage_report", "",
-      "Path to write a human-readable coverage report to when the fuzzer exits (if non-empty)");
-  public static final List<String> customHookIncludes = stringListSetting("custom_hook_includes",
-      "Glob patterns matching names of classes to instrument with hooks (custom and built-in)");
-  public static final List<String> customHookExcludes = stringListSetting("custom_hook_excludes",
-      "Glob patterns matching names of classes that should not be instrumented with hooks (custom and built-in)");
+  public static final String autofuzz =
+      stringSetting(
+          "autofuzz",
+          "",
+          "Fully qualified reference (optionally with a Javadoc-style signature) to a "
+              + "method on the class path to be fuzzed with automatically generated arguments "
+              + "(examples: java.lang.System.out::println, java.lang.String::new(byte[]))");
+  public static final List<String> autofuzzIgnore =
+      stringListSetting(
+          "autofuzz_ignore",
+          ',',
+          "Fully qualified names of exception classes to ignore during fuzzing");
+  public static final String coverageDump =
+      stringSetting(
+          "coverage_dump",
+          "",
+          "Path to write a JaCoCo .exec file to when the fuzzer exits (if non-empty)");
+  public static final String coverageReport =
+      stringSetting(
+          "coverage_report",
+          "",
+          "Path to write a human-readable coverage report to when the fuzzer exits (if non-empty)");
+  public static final List<String> customHookIncludes =
+      stringListSetting(
+          "custom_hook_includes",
+          "Glob patterns matching names of classes to instrument with hooks (custom and built-in)");
+  public static final List<String> customHookExcludes =
+      stringListSetting(
+          "custom_hook_excludes",
+          "Glob patterns matching names of classes that should not be instrumented with hooks"
+              + " (custom and built-in)");
   public static final List<String> customHooks =
       stringListSetting("custom_hooks", "Names of classes to load custom hooks from");
-  public static final List<String> disabledHooks = stringListSetting("disabled_hooks",
-      "Names of classes from which hooks (custom or built-in) should not be loaded from");
-  public static final String dumpClassesDir = stringSetting(
-      "dump_classes_dir", "", "Directory to dump instrumented .class files into (if non-empty)");
-  public static final boolean hooks = boolSetting(
-      "hooks", true, "Apply fuzzing instrumentation (use 'trace' for finer-grained control)");
+  public static final List<String> disabledHooks =
+      stringListSetting(
+          "disabled_hooks",
+          "Names of classes from which hooks (custom or built-in) should not be loaded from");
+  public static final String dumpClassesDir =
+      stringSetting(
+          "dump_classes_dir",
+          "",
+          "Directory to dump instrumented .class files into (if non-empty)");
+  public static final boolean hooks =
+      boolSetting(
+          "hooks", true, "Apply fuzzing instrumentation (use 'trace' for finer-grained control)");
   public static final String idSyncFile = stringSetting("id_sync_file", null, null);
   public static final List<String> instrumentationIncludes =
-      stringListSetting("instrumentation_includes",
+      stringListSetting(
+          "instrumentation_includes",
           "Glob patterns matching names of classes to instrument for fuzzing");
   public static final List<String> instrumentationExcludes =
-      stringListSetting("instrumentation_excludes",
+      stringListSetting(
+          "instrumentation_excludes",
           "Glob patterns matching names of classes that should not be instrumented for fuzzing");
   public static final Set<Long> ignore =
-      unmodifiableSet(stringListSetting("ignore", ',',
-          "Hex strings representing deduplication tokens of findings that should be ignored")
-                          .stream()
-                          .map(token -> Long.parseUnsignedLong(token, 16))
-                          .collect(toSet()));
-  public static final long keepGoing = uint64Setting(
-      "keep_going", 1, "Number of distinct findings after which the fuzzer should stop");
-  public static final String reproducerPath = stringSetting("reproducer_path", ".",
-      "Directory in which stand-alone Java reproducers are stored for each finding");
-  public static final String targetClass = stringSetting("target_class", "",
-      "Fully qualified name of the fuzz target class (required unless --autofuzz is specified)");
+      unmodifiableSet(
+          stringListSetting(
+                  "ignore",
+                  ',',
+                  "Hex strings representing deduplication tokens of findings that should be"
+                      + " ignored")
+              .stream()
+              .map(token -> Long.parseUnsignedLong(token, 16))
+              .collect(toSet()));
+  public static final long keepGoing =
+      uint64Setting(
+          "keep_going", 1, "Number of distinct findings after which the fuzzer should stop");
+  public static final String reproducerPath =
+      stringSetting(
+          "reproducer_path",
+          ".",
+          "Directory in which stand-alone Java reproducers are stored for each finding");
+  public static final String targetClass =
+      stringSetting(
+          "target_class",
+          "",
+          "Fully qualified name of the fuzz target class (required unless --autofuzz is"
+              + " specified)");
   // Used to disambiguate between multiple methods annotated with @FuzzTest in the target class.
   public static final String targetMethod = stringSetting("target_method", "", null);
-  public static final List<String> trace = stringListSetting("trace",
-      "Types of instrumentation to apply: cmp, cov, div, gep (disabled by default), indir, native");
+  public static final List<String> trace =
+      stringListSetting(
+          "trace",
+          "Types of instrumentation to apply: cmp, cov, div, gep (disabled by default), indir,"
+              + " native");
 
   // The values of this setting depends on autofuzz.
-  public static final List<String> targetArgs = autofuzz.isEmpty()
-      ? stringListSetting(
-          "target_args", ' ', "Arguments to pass to the fuzz target's fuzzerInitialize method")
-      : unmodifiableList(concat(Stream.of(autofuzz), autofuzzIgnore.stream()).collect(toList()));
+  public static final List<String> targetArgs =
+      autofuzz.isEmpty()
+          ? stringListSetting(
+              "target_args", ' ', "Arguments to pass to the fuzz target's fuzzerInitialize method")
+          : unmodifiableList(
+              concat(Stream.of(autofuzz), autofuzzIgnore.stream()).collect(toList()));
 
   // Default to false if hooks is false to mimic the original behavior of the native fuzz target
   // runner, but still support hooks = false && dedup = true.

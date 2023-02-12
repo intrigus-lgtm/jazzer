@@ -94,15 +94,16 @@ class FuzzTestArgumentsProvider implements ArgumentsProvider, AnnotationConsumer
       }
     }
     return adaptInputsForFuzzTest(extensionContext.getRequiredTestMethod(), rawSeeds)
-        .onClose(() -> {
-          if (!Utils.isFuzzing(extensionContext)) {
-            extensionContext.publishReportEntry(
-                "No fuzzing has been performed, the fuzz test has only been executed on the fixed "
-                + "set of inputs in the seed corpus.\n"
-                + "To start fuzzing, run a test with the environment variable JAZZER_FUZZ set to a "
-                + "non-empty value.");
-          }
-        });
+        .onClose(
+            () -> {
+              if (!Utils.isFuzzing(extensionContext)) {
+                extensionContext.publishReportEntry(
+                    "No fuzzing has been performed, the fuzz test has only been executed on the"
+                        + " fixed set of inputs in the seed corpus.\n"
+                        + "To start fuzzing, run a test with the environment variable JAZZER_FUZZ"
+                        + " set to a non-empty value.");
+              }
+            });
   }
 
   private Stream<? extends Arguments> adaptInputsForFuzzTest(
@@ -117,20 +118,23 @@ class FuzzTestArgumentsProvider implements ArgumentsProvider, AnnotationConsumer
           e -> arguments(named(e.getKey(), FuzzedDataProviderImpl.withJavaData(e.getValue()))));
     } else {
       // Use Autofuzz on the @FuzzTest method.
-      return rawSeeds.map(e -> {
-        try (FuzzedDataProviderImpl data = FuzzedDataProviderImpl.withJavaData(e.getValue())) {
-          // The Autofuzz FuzzTarget uses data to construct an instance of the test class before it
-          // constructs the fuzz test arguments. We don't need the instance here, but still generate
-          // it as that mutates the FuzzedDataProvider state.
-          Meta meta = new Meta(fuzzTestMethod.getDeclaringClass());
-          meta.consumeNonStatic(data, fuzzTestMethod.getDeclaringClass());
-          Object[] args = meta.consumeArguments(data, fuzzTestMethod, null);
-          // In order to name the subtest, we name the first argument. All other arguments are
-          // passed in unchanged.
-          args[0] = named(e.getKey(), args[0]);
-          return arguments(args);
-        }
-      });
+      return rawSeeds.map(
+          e -> {
+            try (FuzzedDataProviderImpl data = FuzzedDataProviderImpl.withJavaData(e.getValue())) {
+              // The Autofuzz FuzzTarget uses data to construct an instance of the test class before
+              // it
+              // constructs the fuzz test arguments. We don't need the instance here, but still
+              // generate
+              // it as that mutates the FuzzedDataProvider state.
+              Meta meta = new Meta(fuzzTestMethod.getDeclaringClass());
+              meta.consumeNonStatic(data, fuzzTestMethod.getDeclaringClass());
+              Object[] args = meta.consumeArguments(data, fuzzTestMethod, null);
+              // In order to name the subtest, we name the first argument. All other arguments are
+              // passed in unchanged.
+              args[0] = named(e.getKey(), args[0]);
+              return arguments(args);
+            }
+          });
     }
   }
 
@@ -153,13 +157,15 @@ class FuzzTestArgumentsProvider implements ArgumentsProvider, AnnotationConsumer
       // inputsDirUrl looks like this:
       // file:/tmp/testdata/ExampleFuzzTest_deploy.jar!/com/code_intelligence/jazzer/junit/testdata/ExampleFuzzTestInputs
       String pathInJar = inputsDirUrl.getFile().substring(inputsDirUrl.getFile().indexOf('!') + 1);
-      return walkInputsInPath(jar.getPath(pathInJar)).onClose(() -> {
-        try {
-          jar.close();
-        } catch (IOException e) {
-          throw new RuntimeException(e);
-        }
-      });
+      return walkInputsInPath(jar.getPath(pathInJar))
+          .onClose(
+              () -> {
+                try {
+                  jar.close();
+                } catch (IOException e) {
+                  throw new RuntimeException(e);
+                }
+              });
     } else {
       throw new IOException("Unsupported protocol for inputs resource directory: " + inputsDirUrl);
     }
@@ -168,10 +174,10 @@ class FuzzTestArgumentsProvider implements ArgumentsProvider, AnnotationConsumer
   private static Stream<Map.Entry<String, byte[]>> walkInputsInPath(Path path) throws IOException {
     // @ParameterTest automatically closes Streams and AutoCloseable instances.
     // noinspection resource
-    return Files
-        .find(path, Integer.MAX_VALUE,
-            (fileOrDir, basicFileAttributes)
-                -> !basicFileAttributes.isDirectory(),
+    return Files.find(
+            path,
+            Integer.MAX_VALUE,
+            (fileOrDir, basicFileAttributes) -> !basicFileAttributes.isDirectory(),
             FileVisitOption.FOLLOW_LINKS)
         // JUnit identifies individual runs of a `@ParameterizedTest` via their invocation number.
         // In order to get reproducible behavior e.g. when trying to debug a particular input, all

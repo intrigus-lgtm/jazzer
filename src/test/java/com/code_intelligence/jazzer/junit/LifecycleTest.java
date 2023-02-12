@@ -70,26 +70,42 @@ public class LifecycleTest {
 
     EngineExecutionResults results = executeTests();
 
-    results.containerEvents().assertEventsMatchExactly(event(type(STARTED), container(ENGINE)),
-        event(type(STARTED), container(uniqueIdSubstrings(ENGINE, CLAZZ))),
-        event(type(SKIPPED), container(uniqueIdSubstrings(ENGINE, CLAZZ, DISABLED_FUZZ))),
-        event(type(STARTED), container(uniqueIdSubstrings(ENGINE, CLAZZ, LIFECYCLE_FUZZ))),
-        // Warning because the seed corpus directory hasn't been found.
-        event(type(REPORTING_ENTRY_PUBLISHED),
-            container(uniqueIdSubstrings(ENGINE, CLAZZ, LIFECYCLE_FUZZ))),
-        event(type(FINISHED), container(uniqueIdSubstrings(ENGINE, CLAZZ, LIFECYCLE_FUZZ)),
-            finishedSuccessfully()),
-        event(type(FINISHED), container(uniqueIdSubstrings(ENGINE, CLAZZ)),
-            finishedWithFailure(instanceOf(IOException.class))),
-        event(type(FINISHED), container(ENGINE), finishedSuccessfully()));
+    results
+        .containerEvents()
+        .assertEventsMatchExactly(
+            event(type(STARTED), container(ENGINE)),
+            event(type(STARTED), container(uniqueIdSubstrings(ENGINE, CLAZZ))),
+            event(type(SKIPPED), container(uniqueIdSubstrings(ENGINE, CLAZZ, DISABLED_FUZZ))),
+            event(type(STARTED), container(uniqueIdSubstrings(ENGINE, CLAZZ, LIFECYCLE_FUZZ))),
+            // Warning because the seed corpus directory hasn't been found.
+            event(
+                type(REPORTING_ENTRY_PUBLISHED),
+                container(uniqueIdSubstrings(ENGINE, CLAZZ, LIFECYCLE_FUZZ))),
+            event(
+                type(FINISHED),
+                container(uniqueIdSubstrings(ENGINE, CLAZZ, LIFECYCLE_FUZZ)),
+                finishedSuccessfully()),
+            event(
+                type(FINISHED),
+                container(uniqueIdSubstrings(ENGINE, CLAZZ)),
+                finishedWithFailure(instanceOf(IOException.class))),
+            event(type(FINISHED), container(ENGINE), finishedSuccessfully()));
 
-    results.testEvents().assertEventsMatchExactly(
-        event(
-            type(DYNAMIC_TEST_REGISTERED), test(uniqueIdSubstrings(ENGINE, CLAZZ, LIFECYCLE_FUZZ))),
-        event(type(STARTED), test(uniqueIdSubstrings(ENGINE, CLAZZ, LIFECYCLE_FUZZ, INVOCATION)),
-            displayName("Fuzzing...")),
-        event(type(FINISHED), test(uniqueIdSubstrings(ENGINE, CLAZZ, LIFECYCLE_FUZZ, INVOCATION)),
-            displayName("Fuzzing..."), finishedSuccessfully()));
+    results
+        .testEvents()
+        .assertEventsMatchExactly(
+            event(
+                type(DYNAMIC_TEST_REGISTERED),
+                test(uniqueIdSubstrings(ENGINE, CLAZZ, LIFECYCLE_FUZZ))),
+            event(
+                type(STARTED),
+                test(uniqueIdSubstrings(ENGINE, CLAZZ, LIFECYCLE_FUZZ, INVOCATION)),
+                displayName("Fuzzing...")),
+            event(
+                type(FINISHED),
+                test(uniqueIdSubstrings(ENGINE, CLAZZ, LIFECYCLE_FUZZ, INVOCATION)),
+                displayName("Fuzzing..."),
+                finishedSuccessfully()));
   }
 
   @Test
@@ -98,23 +114,37 @@ public class LifecycleTest {
 
     EngineExecutionResults results = executeTests();
 
-    results.containerEvents().assertEventsMatchExactly(event(type(STARTED), container(ENGINE)),
-        event(type(STARTED), container(uniqueIdSubstrings(ENGINE, CLAZZ))),
-        event(type(SKIPPED), container(uniqueIdSubstrings(ENGINE, CLAZZ, DISABLED_FUZZ))),
-        event(type(STARTED), container(uniqueIdSubstrings(ENGINE, CLAZZ, LIFECYCLE_FUZZ))),
-        event(type(REPORTING_ENTRY_PUBLISHED),
-            container(uniqueIdSubstrings(ENGINE, CLAZZ, LIFECYCLE_FUZZ))),
-        event(type(FINISHED), container(uniqueIdSubstrings(ENGINE, CLAZZ, LIFECYCLE_FUZZ))),
-        event(type(FINISHED), container(uniqueIdSubstrings(ENGINE, CLAZZ)),
-            finishedWithFailure(instanceOf(IOException.class))),
-        event(type(FINISHED), container(ENGINE), finishedSuccessfully()));
+    results
+        .containerEvents()
+        .assertEventsMatchExactly(
+            event(type(STARTED), container(ENGINE)),
+            event(type(STARTED), container(uniqueIdSubstrings(ENGINE, CLAZZ))),
+            event(type(SKIPPED), container(uniqueIdSubstrings(ENGINE, CLAZZ, DISABLED_FUZZ))),
+            event(type(STARTED), container(uniqueIdSubstrings(ENGINE, CLAZZ, LIFECYCLE_FUZZ))),
+            event(
+                type(REPORTING_ENTRY_PUBLISHED),
+                container(uniqueIdSubstrings(ENGINE, CLAZZ, LIFECYCLE_FUZZ))),
+            event(type(FINISHED), container(uniqueIdSubstrings(ENGINE, CLAZZ, LIFECYCLE_FUZZ))),
+            event(
+                type(FINISHED),
+                container(uniqueIdSubstrings(ENGINE, CLAZZ)),
+                finishedWithFailure(instanceOf(IOException.class))),
+            event(type(FINISHED), container(ENGINE), finishedSuccessfully()));
 
-    results.testEvents().assertEventsMatchExactly(
-        event(
-            type(DYNAMIC_TEST_REGISTERED), test(uniqueIdSubstrings(ENGINE, CLAZZ, LIFECYCLE_FUZZ))),
-        event(type(STARTED), test(uniqueIdSubstrings(ENGINE, CLAZZ, LIFECYCLE_FUZZ, INVOCATION)),
-            displayName("<empty input>")),
-        event(type(FINISHED), test(uniqueIdSubstrings(ENGINE, CLAZZ, LIFECYCLE_FUZZ, INVOCATION)),
-            displayName("<empty input>"), finishedSuccessfully()));
+    results
+        .testEvents()
+        .assertEventsMatchExactly(
+            event(
+                type(DYNAMIC_TEST_REGISTERED),
+                test(uniqueIdSubstrings(ENGINE, CLAZZ, LIFECYCLE_FUZZ))),
+            event(
+                type(STARTED),
+                test(uniqueIdSubstrings(ENGINE, CLAZZ, LIFECYCLE_FUZZ, INVOCATION)),
+                displayName("<empty input>")),
+            event(
+                type(FINISHED),
+                test(uniqueIdSubstrings(ENGINE, CLAZZ, LIFECYCLE_FUZZ, INVOCATION)),
+                displayName("<empty input>"),
+                finishedSuccessfully()));
   }
 }

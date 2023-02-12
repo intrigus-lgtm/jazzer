@@ -23,7 +23,7 @@ import java.util.Arrays;
 import org.objectweb.asm.Type;
 
 @SuppressWarnings("unused")
-final public class TraceDataFlowNativeCallbacks {
+public final class TraceDataFlowNativeCallbacks {
   static {
     RulesJni.loadLibrary("jazzer_driver", "/com/code_intelligence/jazzer/driver");
   }
@@ -87,11 +87,15 @@ final public class TraceDataFlowNativeCallbacks {
 
   /* trace-cmp */
   public static native void traceCmpInt(int arg1, int arg2, int pc);
+
   public static native void traceConstCmpInt(int arg1, int arg2, int pc);
+
   public static native void traceCmpLong(long arg1, long arg2, int pc);
+
   public static native void traceSwitch(long val, long[] cases, int pc);
   /* trace-div */
   public static native void traceDivInt(int val, int pc);
+
   public static native void traceDivLong(long val, int pc);
   /* trace-gep */
   public static native void traceGep(long val, int pc);

@@ -32,10 +32,12 @@ class AgentConfigurator {
     System.setProperty("jazzer.internal.conditional_hooks", "true");
     // Apply all hooks, but no coverage or compare instrumentation.
     System.setProperty("jazzer.instrumentation_excludes", "**");
-    extensionContext.getConfigurationParameter("jazzer.instrument")
-        .ifPresent(s
-            -> System.setProperty(
-                "jazzer.custom_hook_includes", String.join(File.pathSeparator, s.split(","))));
+    extensionContext
+        .getConfigurationParameter("jazzer.instrument")
+        .ifPresent(
+            s ->
+                System.setProperty(
+                    "jazzer.custom_hook_includes", String.join(File.pathSeparator, s.split(","))));
   }
 
   static void forFuzzing(ExtensionContext executionRequest) {
@@ -46,7 +48,8 @@ class AgentConfigurator {
     applyCommonConfiguration();
 
     String instrumentationFilter =
-        executionRequest.getConfigurationParameter("jazzer.instrument")
+        executionRequest
+            .getConfigurationParameter("jazzer.instrument")
             .orElseGet(
                 () -> Utils.defaultInstrumentationFilter(executionRequest.getRequiredTestClass()));
     String filter = String.join(File.pathSeparator, instrumentationFilter.split(","));
@@ -56,10 +59,21 @@ class AgentConfigurator {
 
   private static void applyCommonConfiguration() {
     // Do not hook common IDE and JUnit classes and their dependencies.
-    System.setProperty("jazzer.custom_hook_excludes",
-        String.join(File.pathSeparator, "com.google.testing.junit.**", "com.intellij.**",
-            "io.github.classgraph.**", "junit.framework.**", "net.bytebuddy.**",
-            "org.apiguardian.**", "org.assertj.core.**", "org.hamcrest.**", "org.junit.**",
-            "org.opentest4j.**", "org.apache.maven.**", "org.gradle.**"));
+    System.setProperty(
+        "jazzer.custom_hook_excludes",
+        String.join(
+            File.pathSeparator,
+            "com.google.testing.junit.**",
+            "com.intellij.**",
+            "io.github.classgraph.**",
+            "junit.framework.**",
+            "net.bytebuddy.**",
+            "org.apiguardian.**",
+            "org.assertj.core.**",
+            "org.hamcrest.**",
+            "org.junit.**",
+            "org.opentest4j.**",
+            "org.apache.maven.**",
+            "org.gradle.**"));
   }
 }

@@ -50,9 +50,11 @@ class FuzzTargetFinder {
     try {
       fuzzTargetClass = Class.forName(targetClassName);
     } catch (ClassNotFoundException e) {
-      Log.error(String.format(
-          "'%s' not found on classpath:%n%n%s%n%nAll required classes must be on the classpath specified via --cp.",
-          targetClassName, System.getProperty("java.class.path")));
+      Log.error(
+          String.format(
+              "'%s' not found on classpath:%n%n%s%n%nAll required classes must be on the classpath"
+                  + " specified via --cp.",
+              targetClassName, System.getProperty("java.class.path")));
       exit(1);
       throw new IllegalStateException("Not reached");
     }
@@ -67,32 +69,43 @@ class FuzzTargetFinder {
     Optional<Method> dataFuzzTarget =
         targetPublicStaticMethod(clazz, FUZZER_TEST_ONE_INPUT, FuzzedDataProvider.class);
     if (bytesFuzzTarget.isPresent() == dataFuzzTarget.isPresent()) {
-      throw new IllegalArgumentException(String.format(
-          "%s must define exactly one of the following two functions:%n"
-              + "public static void fuzzerTestOneInput(byte[] ...)%n"
-              + "public static void fuzzerTestOneInput(FuzzedDataProvider ...)%n"
-              + "Note: Fuzz targets returning boolean are no longer supported; exceptions should be thrown instead of returning true.",
-          clazz.getName()));
+      throw new IllegalArgumentException(
+          String.format(
+              "%s must define exactly one of the following two functions:%npublic static void"
+                  + " fuzzerTestOneInput(byte[] ...)%npublic static void"
+                  + " fuzzerTestOneInput(FuzzedDataProvider ...)%nNote: Fuzz targets returning"
+                  + " boolean are no longer supported; exceptions should be thrown instead of"
+                  + " returning true.",
+              clazz.getName()));
     }
 
     Callable<Object> initialize =
-        Stream
-            .of(targetPublicStaticMethod(clazz, FUZZER_INITIALIZE, String[].class)
-                    .map(init -> (Callable<Object>) () -> {
-                      init.invoke(null, (Object) Opt.targetArgs.toArray(new String[] {}));
-                      return null;
-                    }),
+        Stream.of(
+                targetPublicStaticMethod(clazz, FUZZER_INITIALIZE, String[].class)
+                    .map(
+                        init ->
+                            (Callable<Object>)
+                                () -> {
+                                  init.invoke(
+                                      null, (Object) Opt.targetArgs.toArray(new String[] {}));
+                                  return null;
+                                }),
                 targetPublicStaticMethod(clazz, FUZZER_INITIALIZE)
-                    .map(init -> (Callable<Object>) () -> {
-                      init.invoke(null);
-                      return null;
-                    }))
+                    .map(
+                        init ->
+                            (Callable<Object>)
+                                () -> {
+                                  init.invoke(null);
+                                  return null;
+                                }))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .findFirst()
             .orElse(() -> null);
 
-    return new FuzzTarget(dataFuzzTarget.orElseGet(bytesFuzzTarget::get), initialize,
+    return new FuzzTarget(
+        dataFuzzTarget.orElseGet(bytesFuzzTarget::get),
+        initialize,
         targetPublicStaticMethod(clazz, FUZZER_TEAR_DOWN));
   }
 

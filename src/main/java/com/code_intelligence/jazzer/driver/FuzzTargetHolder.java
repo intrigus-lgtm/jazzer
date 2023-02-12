@@ -27,10 +27,10 @@ public class FuzzTargetHolder {
   static {
     try {
       AUTOFUZZ_FUZZ_TARGET =
-          new FuzzTarget(com.code_intelligence.jazzer.autofuzz.FuzzTarget.class.getMethod(
-                             "fuzzerTestOneInput", FuzzedDataProvider.class),
-              ()
-                  -> {
+          new FuzzTarget(
+              com.code_intelligence.jazzer.autofuzz.FuzzTarget.class.getMethod(
+                  "fuzzerTestOneInput", FuzzedDataProvider.class),
+              () -> {
                 com.code_intelligence.jazzer.autofuzz.FuzzTarget.fuzzerInitialize(
                     Opt.targetArgs.toArray(new String[0]));
                 return null;
@@ -41,9 +41,7 @@ public class FuzzTargetHolder {
     }
   }
 
-  /**
-   * The fuzz target that {@link FuzzTargetRunner} should fuzz.
-   */
+  /** The fuzz target that {@link FuzzTargetRunner} should fuzz. */
   public static FuzzTarget fuzzTarget;
 
   public static class FuzzTarget {

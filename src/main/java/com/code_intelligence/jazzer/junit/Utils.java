@@ -83,7 +83,8 @@ class Utils {
     String packageName = testClass.getPackage().getName();
     String[] packageSegments = packageName.split("\\.");
     int numSegments = 2;
-    if (packageSegments.length > 2 && packageSegments[0].equals("com")
+    if (packageSegments.length > 2
+        && packageSegments[0].equals("com")
         && packageSegments[1].equals("github")) {
       numSegments = 3;
     }
@@ -93,26 +94,27 @@ class Utils {
 
   private static final Pattern COVERAGE_AGENT_ARG =
       Pattern.compile("-javaagent:.*(?:intellij-coverage-agent|jacoco).*");
+
   static boolean isCoverageAgentPresent() {
-    return ManagementFactory.getRuntimeMXBean().getInputArguments().stream().anyMatch(
-        s -> COVERAGE_AGENT_ARG.matcher(s).matches());
+    return ManagementFactory.getRuntimeMXBean().getInputArguments().stream()
+        .anyMatch(s -> COVERAGE_AGENT_ARG.matcher(s).matches());
   }
 
   private static final boolean IS_FUZZING_ENV =
       System.getenv("JAZZER_FUZZ") != null && !System.getenv("JAZZER_FUZZ").isEmpty();
+
   static boolean isFuzzing(ExtensionContext extensionContext) {
     return IS_FUZZING_ENV || runFromCommandLine(extensionContext);
   }
 
   static boolean runFromCommandLine(ExtensionContext extensionContext) {
-    return extensionContext.getConfigurationParameter("jazzer.internal.commandLine")
+    return extensionContext
+        .getConfigurationParameter("jazzer.internal.commandLine")
         .map(Boolean::parseBoolean)
         .orElse(false);
   }
 
-  /**
-   * Returns true if and only if the value is equal to "true", "1", or "yes" case-insensitively.
-   */
+  /** Returns true if and only if the value is equal to "true", "1", or "yes" case-insensitively. */
   static boolean permissivelyParseBoolean(String value) {
     return value.equalsIgnoreCase("true") || value.equals("1") || value.equalsIgnoreCase("yes");
   }

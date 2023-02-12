@@ -33,16 +33,20 @@ class FuzzTestExtensions implements ExecutionCondition, InvocationInterceptor {
   private static Field hooksEnabledField;
 
   @Override
-  public void interceptTestTemplateMethod(Invocation<Void> invocation,
-      ReflectiveInvocationContext<Method> invocationContext, ExtensionContext extensionContext)
+  public void interceptTestTemplateMethod(
+      Invocation<Void> invocation,
+      ReflectiveInvocationContext<Method> invocationContext,
+      ExtensionContext extensionContext)
       throws Throwable {
     if (Utils.isFuzzing(extensionContext)) {
       // Skip the invocation of the test method with the trivial arguments provided by
       // FuzzTestArgumentsProvider and start fuzzing instead.
       invocation.skip();
-      Optional<Throwable> throwable = extensionContext.getStore(Namespace.GLOBAL)
-                                          .get(FuzzTestExecutor.class, FuzzTestExecutor.class)
-                                          .execute(invocationContext);
+      Optional<Throwable> throwable =
+          extensionContext
+              .getStore(Namespace.GLOBAL)
+              .get(FuzzTestExecutor.class, FuzzTestExecutor.class)
+              .execute(invocationContext);
       if (throwable.isPresent()) {
         throw throwable.get();
       }
@@ -62,7 +66,8 @@ class FuzzTestExtensions implements ExecutionCondition, InvocationInterceptor {
       // * Using a dedicated class loader for @FuzzTests: First-class support for this isn't
       //   available in JUnit 5 (https://github.com/junit-team/junit5/issues/201), but
       //   third-party extensions have done it:
-      //   https://github.com/spring-projects/spring-boot/blob/main/spring-boot-project/spring-boot-tools/spring-boot-test-support/src/main/java/org/springframework/boot/testsupport/classpath/ModifiedClassPathExtension.java
+      //
+      // https://github.com/spring-projects/spring-boot/blob/main/spring-boot-project/spring-boot-tools/spring-boot-test-support/src/main/java/org/springframework/boot/testsupport/classpath/ModifiedClassPathExtension.java
       //   However, as this involves launching a new test run as part of running a test, this
       //   introduces a number of inconsistencies if applied on the test method rather than test
       //   class level. For example, @BeforeAll methods will have to be run twice in different class
@@ -86,18 +91,21 @@ class FuzzTestExtensions implements ExecutionCondition, InvocationInterceptor {
   public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext extensionContext) {
     if (!Utils.isFuzzing(extensionContext)) {
       return ConditionEvaluationResult.enabled(
-          "Regression tests are run instead of fuzzing since JAZZER_FUZZ has not been set to a non-empty value");
+          "Regression tests are run instead of fuzzing since JAZZER_FUZZ has not been set to a"
+              + " non-empty value");
     }
     // Only fuzz the first @FuzzTest that makes it here.
     if (FuzzTestExtensions.fuzzTestMethod.compareAndSet(
             null, extensionContext.getRequiredTestMethod())
-        || extensionContext.getRequiredTestMethod().equals(
-            FuzzTestExtensions.fuzzTestMethod.get())) {
+        || extensionContext
+            .getRequiredTestMethod()
+            .equals(FuzzTestExtensions.fuzzTestMethod.get())) {
       return ConditionEvaluationResult.enabled(
           "Fuzzing " + extensionContext.getRequiredTestMethod());
     }
     return ConditionEvaluationResult.disabled(
-        "Only one fuzz test can be run at a time, but multiple tests have been annotated with @FuzzTest");
+        "Only one fuzz test can be run at a time, but multiple tests have been annotated with"
+            + " @FuzzTest");
   }
 
   private static Field getLastFindingField() throws ClassNotFoundException, NoSuchFieldException {

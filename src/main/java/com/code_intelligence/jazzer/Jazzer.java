@@ -53,9 +53,9 @@ import java.util.stream.Stream;
  * The libFuzzer-compatible CLI entrypoint for Jazzer.
  *
  * <p>Arguments to Jazzer are passed as command-line arguments or {@code jazzer.*} system
- * properties. For example, setting the property {@code jazzer.target_class} to
- * {@code com.example.FuzzTest} is equivalent to passing the argument
- * {@code --target_class=com.example.FuzzTest}.
+ * properties. For example, setting the property {@code jazzer.target_class} to {@code
+ * com.example.FuzzTest} is equivalent to passing the argument {@code
+ * --target_class=com.example.FuzzTest}.
  *
  * <p>Arguments to libFuzzer are passed as command-line arguments.
  */
@@ -67,9 +67,10 @@ public class Jazzer {
   // Accessed by jazzer_main.cpp.
   @SuppressWarnings("unused")
   private static void main(byte[][] nativeArgs) throws IOException, InterruptedException {
-    start(Arrays.stream(nativeArgs)
-              .map(bytes -> new String(bytes, StandardCharsets.UTF_8))
-              .collect(toList()));
+    start(
+        Arrays.stream(nativeArgs)
+            .map(bytes -> new String(bytes, StandardCharsets.UTF_8))
+            .collect(toList()));
   }
 
   private static void start(List<String> args) throws IOException, InterruptedException {
@@ -82,8 +83,9 @@ public class Jazzer {
     // native libraries without sanitizers (e.g. to quickly grow a corpus).
     final boolean loadASan = Boolean.parseBoolean(System.getProperty("jazzer.asan", "false"));
     final boolean loadUBSan = Boolean.parseBoolean(System.getProperty("jazzer.ubsan", "false"));
-    final boolean fuzzNative = Boolean.parseBoolean(
-        System.getProperty("jazzer.native", Boolean.toString(loadASan || loadUBSan)));
+    final boolean fuzzNative =
+        Boolean.parseBoolean(
+            System.getProperty("jazzer.native", Boolean.toString(loadASan || loadUBSan)));
     if ((loadASan || loadUBSan) && !fuzzNative) {
       Log.error("--asan and --ubsan cannot be used without --native");
       exit(1);
@@ -94,10 +96,17 @@ public class Jazzer {
       // In LibFuzzer's fork mode, the subprocesses created continuously by the main libFuzzer
       // process do not create further subprocesses. Creating a wrapper script for each subprocess
       // is an unnecessary overhead.
-      final boolean spawnsSubprocesses = args.stream().anyMatch(
-          arg -> arg.startsWith("-fork=") || arg.startsWith("-jobs=") || arg.startsWith("-merge="));
-      String arg0 = spawnsSubprocesses ? prepareArgv0(new HashMap<>())
-                                       : "unused_report_a_bug_if_you_see_this";
+      final boolean spawnsSubprocesses =
+          args.stream()
+              .anyMatch(
+                  arg ->
+                      arg.startsWith("-fork=")
+                          || arg.startsWith("-jobs=")
+                          || arg.startsWith("-merge="));
+      String arg0 =
+          spawnsSubprocesses
+              ? prepareArgv0(new HashMap<>())
+              : "unused_report_a_bug_if_you_see_this";
       args = Stream.concat(Stream.of(arg0), args.stream()).collect(toList());
       exit(Driver.start(args, spawnsSubprocesses));
     }
@@ -117,16 +126,21 @@ public class Jazzer {
     // strong and weak symbols.
     preloadLibs.add(RulesJni.extractLibrary("jazzer_preload", Jazzer.class));
     if (loadASan) {
-      processBuilder.environment().compute("ASAN_OPTIONS",
-          (name, currentValue)
-              -> appendWithPathListSeparator(name,
-                  // The JVM produces an extremely large number of false positive leaks, which makes
-                  // it impossible to use LeakSanitizer.
-                  // TODO: Investigate whether we can hook malloc/free only for JNI shared
-                  // libraries, not the JVM itself.
-                  "detect_leaks=0",
-                  // We load jazzer_preload first.
-                  "verify_asan_link_order=0"));
+      processBuilder
+          .environment()
+          .compute(
+              "ASAN_OPTIONS",
+              (name, currentValue) ->
+                  appendWithPathListSeparator(
+                      name,
+                      // The JVM produces an extremely large number of false positive leaks, which
+                      // makes
+                      // it impossible to use LeakSanitizer.
+                      // TODO: Investigate whether we can hook malloc/free only for JNI shared
+                      // libraries, not the JVM itself.
+                      "detect_leaks=0",
+                      // We load jazzer_preload first.
+                      "verify_asan_link_order=0"));
       Log.warn("Jazzer is not compatible with LeakSanitizer. Leaks are not reported.");
       preloadLibs.add(findHostClangLibrary(asanLibNames()));
     }
@@ -141,12 +155,13 @@ public class Jazzer {
     // preloaded.
     processBuilder.environment().remove(preloadVariable());
     Map<String, String> additionalEnvironment = new HashMap<>();
-    additionalEnvironment.put(preloadVariable(),
+    additionalEnvironment.put(
+        preloadVariable(),
         appendWithPathListSeparator(
-            preloadVariable(), preloadLibs.stream().map(Path::toString).toArray(String[] ::new)));
+            preloadVariable(), preloadLibs.stream().map(Path::toString).toArray(String[]::new)));
     List<String> subProcessArgs =
-        Stream
-            .concat(Stream.of(prepareArgv0(additionalEnvironment)),
+        Stream.concat(
+                Stream.of(prepareArgv0(additionalEnvironment)),
                 // Prevent a "fork bomb" by stripping all args that trigger this code path.
                 args.stream().filter(arg -> !argsToFilter.contains(arg.split("=")[0])))
             .collect(toList());
@@ -192,19 +207,21 @@ public class Jazzer {
     char shellQuote = isPosix() ? '\'' : '"';
     String launcherTemplate = isPosix() ? "#!/usr/bin/env sh\n%s $@\n" : "@echo off\r\n%s %%*\r\n";
     String launcherExtension = isPosix() ? ".sh" : ".bat";
-    FileAttribute<?>[] launcherScriptAttributes = isPosix()
-        ? new FileAttribute[] {PosixFilePermissions.asFileAttribute(
-            PosixFilePermissions.fromString("rwx------"))}
-        : new FileAttribute[] {};
-    String env = additionalEnvironment.entrySet()
-                     .stream()
-                     .map(e -> e.getKey() + "='" + e.getValue() + "'")
-                     .collect(joining(" "));
-    String command = Stream
-                         .concat(Stream.of(javaBinary().toString()), javaBinaryArgs())
-                         // Escape individual arguments for the shell.
-                         .map(str -> shellQuote + str + shellQuote)
-                         .collect(joining(" "));
+    FileAttribute<?>[] launcherScriptAttributes =
+        isPosix()
+            ? new FileAttribute[] {
+              PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"))
+            }
+            : new FileAttribute[] {};
+    String env =
+        additionalEnvironment.entrySet().stream()
+            .map(e -> e.getKey() + "='" + e.getValue() + "'")
+            .collect(joining(" "));
+    String command =
+        Stream.concat(Stream.of(javaBinary().toString()), javaBinaryArgs())
+            // Escape individual arguments for the shell.
+            .map(str -> shellQuote + str + shellQuote)
+            .collect(joining(" "));
     String invocation = env.isEmpty() ? command : env + " " + command;
     String launcherContent = String.format(launcherTemplate, invocation);
     Path launcher = Files.createTempFile("jazzer-", launcherExtension, launcherScriptAttributes);
@@ -218,8 +235,11 @@ public class Jazzer {
   }
 
   private static Stream<String> javaBinaryArgs() {
-    return Stream.concat(ManagementFactory.getRuntimeMXBean().getInputArguments().stream(),
-        Stream.of("-cp", System.getProperty("java.class.path"),
+    return Stream.concat(
+        ManagementFactory.getRuntimeMXBean().getInputArguments().stream(),
+        Stream.of(
+            "-cp",
+            System.getProperty("java.class.path"),
             // Make ByteBuddyAgent's job simpler by allowing it to attach directly to the JVM
             // rather than relying on an external helper. The latter fails on macOS 12 with JDK 11+
             // (but not 8) and UBSan preloaded with:
@@ -228,7 +248,8 @@ public class Jazzer {
             // to exec spawn helper: pid: 8227, signal: 9
             // Presumably, this issue is caused by codesigning and the exec helper missing the
             // entitlements required for library insertion.
-            "-Djdk.attach.allowAttachSelf=true", Jazzer.class.getName()));
+            "-Djdk.attach.allowAttachSelf=true",
+            Jazzer.class.getName()));
   }
 
   /**
@@ -291,8 +312,9 @@ public class Jazzer {
     try {
       Process process = processBuilder.start();
       if (process.waitFor() != 0) {
-        Log.error(String.format(
-            "'%s' exited with exit code %d", String.join(" ", command), process.exitValue()));
+        Log.error(
+            String.format(
+                "'%s' exited with exit code %d", String.join(" ", command), process.exitValue()));
         copy(process.getInputStream(), System.out);
         copy(process.getErrorStream(), System.err);
         exit(1);

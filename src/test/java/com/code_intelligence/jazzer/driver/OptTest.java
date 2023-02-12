@@ -38,7 +38,8 @@ public class OptTest {
   }
 
   public void assertStringSplit(String str, char sep, String... tokens) {
-    assertEquals(Arrays.stream(tokens).collect(Collectors.toList()),
+    assertEquals(
+        Arrays.stream(tokens).collect(Collectors.toList()),
         OptParser.splitOnUnescapedSeparator(str, sep));
   }
 }

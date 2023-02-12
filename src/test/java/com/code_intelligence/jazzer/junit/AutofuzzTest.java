@@ -38,7 +38,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -65,8 +64,9 @@ public class AutofuzzTest {
 
     EngineExecutionResults results =
         EngineTestKit.engine("junit-jupiter")
-            .selectors(selectMethod(
-                "com.example.AutofuzzFuzzTest#autofuzz(java.lang.String,com.example.AutofuzzFuzzTest$IntHolder)"))
+            .selectors(
+                selectMethod(
+                    "com.example.AutofuzzFuzzTest#autofuzz(java.lang.String,com.example.AutofuzzFuzzTest$IntHolder)"))
             .configurationParameter("jazzer.internal.basedir", baseDir.toAbsolutePath().toString())
             .execute();
 
@@ -76,27 +76,42 @@ public class AutofuzzTest {
         "test-template:autofuzz(java.lang.String, com.example.AutofuzzFuzzTest$IntHolder)";
     final String invocation = "test-template-invocation:#1";
 
-    results.containerEvents().assertEventsMatchExactly(event(type(STARTED), container(engine)),
-        event(type(STARTED), container(uniqueIdSubstrings(engine, clazz))),
-        event(type(STARTED), container(uniqueIdSubstrings(engine, clazz, autofuzz))),
-        event(type(FINISHED), container(uniqueIdSubstrings(engine, clazz, autofuzz)),
-            finishedSuccessfully()),
-        event(type(FINISHED), container(uniqueIdSubstrings(engine, clazz)), finishedSuccessfully()),
-        event(type(FINISHED), container(engine), finishedSuccessfully()));
+    results
+        .containerEvents()
+        .assertEventsMatchExactly(
+            event(type(STARTED), container(engine)),
+            event(type(STARTED), container(uniqueIdSubstrings(engine, clazz))),
+            event(type(STARTED), container(uniqueIdSubstrings(engine, clazz, autofuzz))),
+            event(
+                type(FINISHED),
+                container(uniqueIdSubstrings(engine, clazz, autofuzz)),
+                finishedSuccessfully()),
+            event(
+                type(FINISHED),
+                container(uniqueIdSubstrings(engine, clazz)),
+                finishedSuccessfully()),
+            event(type(FINISHED), container(engine), finishedSuccessfully()));
 
-    results.testEvents().assertEventsMatchExactly(
-        event(type(DYNAMIC_TEST_REGISTERED), test(uniqueIdSubstrings(engine, clazz, autofuzz))),
-        event(type(STARTED), test(uniqueIdSubstrings(engine, clazz, autofuzz, invocation)),
-            displayName("Fuzzing...")),
-        event(type(FINISHED), test(uniqueIdSubstrings(engine, clazz, autofuzz, invocation)),
-            displayName("Fuzzing..."), finishedWithFailure(instanceOf(RuntimeException.class))));
+    results
+        .testEvents()
+        .assertEventsMatchExactly(
+            event(type(DYNAMIC_TEST_REGISTERED), test(uniqueIdSubstrings(engine, clazz, autofuzz))),
+            event(
+                type(STARTED),
+                test(uniqueIdSubstrings(engine, clazz, autofuzz, invocation)),
+                displayName("Fuzzing...")),
+            event(
+                type(FINISHED),
+                test(uniqueIdSubstrings(engine, clazz, autofuzz, invocation)),
+                displayName("Fuzzing..."),
+                finishedWithFailure(instanceOf(RuntimeException.class))));
 
     // Should crash on an input that contains "jazzer", with the crash emitted into the
     // automatically created inputs directory.
     Path crashingInput;
     try (Stream<Path> crashFiles =
-             Files.list(inputsDirectory)
-                 .filter(path -> path.getFileName().toString().startsWith("crash-"))) {
+        Files.list(inputsDirectory)
+            .filter(path -> path.getFileName().toString().startsWith("crash-"))) {
       List<Path> crashFilesList = crashFiles.collect(Collectors.toList());
       assertWithMessage("Expected crashing input in " + baseDir).that(crashFilesList).hasSize(1);
       crashingInput = crashFilesList.get(0);
@@ -124,30 +139,45 @@ public class AutofuzzTest {
 
     EngineExecutionResults results =
         EngineTestKit.engine("junit-jupiter")
-            .selectors(selectMethod(
-                "com.example.AutofuzzWithCorpusFuzzTest#autofuzzWithCorpus(java.lang.String,int)"))
+            .selectors(
+                selectMethod(
+                    "com.example.AutofuzzWithCorpusFuzzTest#autofuzzWithCorpus(java.lang.String,int)"))
             .execute();
 
     final String engine = "engine:junit-jupiter";
     final String clazz = "class:com.example.AutofuzzWithCorpusFuzzTest";
     final String autofuzzWithCorpus = "test-template:autofuzzWithCorpus(java.lang.String, int)";
 
-    results.containerEvents().assertEventsMatchExactly(event(type(STARTED), container(engine)),
-        event(type(STARTED), container(uniqueIdSubstrings(engine, clazz))),
-        event(type(STARTED), container(uniqueIdSubstrings(engine, clazz, autofuzzWithCorpus))),
-        // "No fuzzing has been performed..."
-        event(type(REPORTING_ENTRY_PUBLISHED),
-            container(uniqueIdSubstrings(engine, clazz, autofuzzWithCorpus))),
-        event(type(FINISHED), container(uniqueIdSubstrings(engine, clazz, autofuzzWithCorpus)),
-            finishedSuccessfully()),
-        event(type(FINISHED), container(uniqueIdSubstrings(engine, clazz)), finishedSuccessfully()),
-        event(type(FINISHED), container(engine), finishedSuccessfully()));
+    results
+        .containerEvents()
+        .assertEventsMatchExactly(
+            event(type(STARTED), container(engine)),
+            event(type(STARTED), container(uniqueIdSubstrings(engine, clazz))),
+            event(type(STARTED), container(uniqueIdSubstrings(engine, clazz, autofuzzWithCorpus))),
+            // "No fuzzing has been performed..."
+            event(
+                type(REPORTING_ENTRY_PUBLISHED),
+                container(uniqueIdSubstrings(engine, clazz, autofuzzWithCorpus))),
+            event(
+                type(FINISHED),
+                container(uniqueIdSubstrings(engine, clazz, autofuzzWithCorpus)),
+                finishedSuccessfully()),
+            event(
+                type(FINISHED),
+                container(uniqueIdSubstrings(engine, clazz)),
+                finishedSuccessfully()),
+            event(type(FINISHED), container(engine), finishedSuccessfully()));
 
-    results.testEvents().assertEventsMatchExactly(event(type(DYNAMIC_TEST_REGISTERED)),
-        event(type(STARTED)),
-        event(test("autofuzzWithCorpus", "<empty input>"), finishedSuccessfully()),
-        event(type(DYNAMIC_TEST_REGISTERED)), event(type(STARTED)),
-        event(test("autofuzzWithCorpus", "crashing_input"),
-            finishedWithFailure(instanceOf(RuntimeException.class))));
+    results
+        .testEvents()
+        .assertEventsMatchExactly(
+            event(type(DYNAMIC_TEST_REGISTERED)),
+            event(type(STARTED)),
+            event(test("autofuzzWithCorpus", "<empty input>"), finishedSuccessfully()),
+            event(type(DYNAMIC_TEST_REGISTERED)),
+            event(type(STARTED)),
+            event(
+                test("autofuzzWithCorpus", "crashing_input"),
+                finishedWithFailure(instanceOf(RuntimeException.class))));
   }
 }

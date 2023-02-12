@@ -60,9 +60,13 @@ abstract class FuzzTestExecutor {
     }
 
     if (useAutofuzz(fuzzTestMethod)) {
-      System.setProperty("jazzer.autofuzz",
-          String.format("%s::%s%s", fuzzTestMethod.getDeclaringClass().getName(),
-              fuzzTestMethod.getName(), getReadableDescriptor(fuzzTestMethod)));
+      System.setProperty(
+          "jazzer.autofuzz",
+          String.format(
+              "%s::%s%s",
+              fuzzTestMethod.getDeclaringClass().getName(),
+              fuzzTestMethod.getName(),
+              getReadableDescriptor(fuzzTestMethod)));
     }
 
     if (runFromCommandLine(context)) {
@@ -100,12 +104,13 @@ abstract class FuzzTestExecutor {
     // working directory, which is usually the project's source root.
     Optional<Path> findingsDirectory = inputsDirectorySourcePath(fuzzTestClass, baseDir);
     if (!findingsDirectory.isPresent()) {
-      context.publishReportEntry(String.format(
-          "Collecting crashing inputs in the project root directory.\nIf you want to keep them "
-              + "organized by fuzz test and automatically run them as regression tests with "
-              + "JUnit Jupiter, create a test resource directory called '%s' in package '%s' "
-              + "and move the files there.",
-          inputsDirectoryResourcePath(fuzzTestClass), fuzzTestClass.getPackage().getName()));
+      context.publishReportEntry(
+          String.format(
+              "Collecting crashing inputs in the project root directory.\nIf you want to keep them "
+                  + "organized by fuzz test and automatically run them as regression tests with "
+                  + "JUnit Jupiter, create a test resource directory called '%s' in package '%s' "
+                  + "and move the files there.",
+              inputsDirectoryResourcePath(fuzzTestClass), fuzzTestClass.getPackage().getName()));
     }
 
     // We prefer the inputs directory on the classpath, if it exists, as that is more reliable than
@@ -125,7 +130,7 @@ abstract class FuzzTestExecutor {
       if (inputsDirectoryUrl != null && !findingsDirectory.isPresent()) {
         context.publishReportEntry(
             "When running Jazzer fuzz tests from a JAR rather than class files, the inputs "
-            + "directory isn't used unless it is located under src/test/resources/...");
+                + "directory isn't used unless it is located under src/test/resources/...");
       }
       inputsDirectory = findingsDirectory;
     }
@@ -133,8 +138,10 @@ abstract class FuzzTestExecutor {
     // From the second positional argument on, files and directories are used as seeds but not
     // modified.
     inputsDirectory.ifPresent(dir -> libFuzzerArgs.add(dir.toAbsolutePath().toString()));
-    libFuzzerArgs.add(String.format("-artifact_prefix=%s%c",
-        findingsDirectory.orElse(baseDir).toAbsolutePath(), File.separatorChar));
+    libFuzzerArgs.add(
+        String.format(
+            "-artifact_prefix=%s%c",
+            findingsDirectory.orElse(baseDir).toAbsolutePath(), File.separatorChar));
 
     libFuzzerArgs.add("-max_total_time=" + durationStringToSeconds(maxDuration));
     // Disable libFuzzer's out of memory detection: It is only useful for native library fuzzing,
@@ -142,7 +149,7 @@ abstract class FuzzTestExecutor {
     // up IntelliJ's memory usage.
     libFuzzerArgs.add("-rss_limit_mb=0");
     if (Utils.permissivelyParseBoolean(
-            context.getConfigurationParameter("jazzer.valueprofile").orElse("false"))) {
+        context.getConfigurationParameter("jazzer.valueprofile").orElse("false"))) {
       libFuzzerArgs.add("-use_value_profile=1");
     }
 
@@ -163,7 +170,7 @@ abstract class FuzzTestExecutor {
             && fuzzTestMethod.getParameterTypes()[0] != FuzzedDataProvider.class);
   }
 
-  abstract public Optional<Throwable> executeInternal(
+  public abstract Optional<Throwable> executeInternal(
       ReflectiveInvocationContext<Method> invocationContext);
 
   public Optional<Throwable> execute(ReflectiveInvocationContext<Method> invocationContext) {
@@ -171,8 +178,10 @@ abstract class FuzzTestExecutor {
       FuzzTargetHolder.fuzzTarget = FuzzTargetHolder.AUTOFUZZ_FUZZ_TARGET;
     } else {
       FuzzTargetHolder.fuzzTarget =
-          new FuzzTargetHolder.FuzzTarget(invocationContext.getExecutable(),
-              () -> invocationContext.getTarget().get(), Optional.empty());
+          new FuzzTargetHolder.FuzzTarget(
+              invocationContext.getExecutable(),
+              () -> invocationContext.getTarget().get(),
+              Optional.empty());
     }
     return executeInternal(invocationContext);
   }
@@ -184,12 +193,10 @@ abstract class FuzzTestExecutor {
       this.libFuzzerArgs = getLibFuzzerArgs(extensionContext);
     }
 
-    /**
-     * Returns the list of arguments set on the command line.
-     */
+    /** Returns the list of arguments set on the command line. */
     private static List<String> getLibFuzzerArgs(ExtensionContext extensionContext) {
       ArrayList<String> args = new ArrayList<>();
-      for (int i = 0;; i++) {
+      for (int i = 0; ; i++) {
         Optional<String> arg =
             extensionContext.getConfigurationParameter("jazzer.internal.arg." + i);
         if (!arg.isPresent()) {
@@ -222,10 +229,11 @@ abstract class FuzzTestExecutor {
     public Optional<Throwable> executeInternal(
         ReflectiveInvocationContext<Method> invocationContext) {
       AtomicReference<Throwable> atomicFinding = new AtomicReference<>();
-      FuzzTargetRunner.registerFindingHandler(t -> {
-        atomicFinding.set(t);
-        return false;
-      });
+      FuzzTargetRunner.registerFindingHandler(
+          t -> {
+            atomicFinding.set(t);
+            return false;
+          });
       int exitCode = FuzzTargetRunner.startLibFuzzer(libFuzzerArgs);
       Throwable finding = atomicFinding.get();
       if (finding != null) {
