@@ -11,7 +11,7 @@ on:
 
 jobs:
   check_formatting:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v3
@@ -23,10 +23,8 @@ jobs:
 
       - name: Install formatters
         run: |
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo apt-get install software-properties-common
-          sudo add-apt-repository 'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-14 main'
-          sudo apt-get install clang-format-14
+          sudo apt-get install clang-format-14 openjdk-17-jdk
+          curl -sSLO https://github.com/google/google-java-format/releases/download/v1.15.0/google-java-format-1.15.0-all-deps.jar && chmod a+x google-java-format-1.15.0-all-deps.jar && sudo mv google-java-format-1.15.0-all-deps.jar /usr/bin/google-java-format-1.15.0-all-deps.jar
           curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.48.0/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/bin/ktlint
           go install github.com/google/addlicense@latest
           go install github.com/bazelbuild/buildtools/buildifier@latest
