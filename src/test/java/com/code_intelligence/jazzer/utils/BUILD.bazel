@@ -1,0 +1,22 @@
+load("//bazel:compat.bzl", "SKIP_ON_WINDOWS")
+
+java_import(
+    name = "manifest.jar",
+    jars = ["//src/test/resources:manifest"],
+)
+
+java_test(
+    name = "ManifestUtilsTest",
+    srcs = [
+        "ManifestUtilsTest.java",
+    ],
+    deps = [
+        ":manifest.jar",
+        "//src/main/java/com/code_intelligence/jazzer/utils:manifest_utils",
+        "@maven//:junit_junit",
+        "@maven//:org_junit_jupiter_junit_jupiter_api",
+        "@maven//:org_junit_platform_junit_platform_engine",
+        "@maven//:org_junit_platform_junit_platform_testkit",
+        "@maven//:org_opentest4j_opentest4j",
+    ],
+)

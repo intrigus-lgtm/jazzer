@@ -1,0 +1,5 @@
+filegroup(
+    name = "manifest",
+    srcs = ["manifest.jar"],
+    visibility = ["//visibility:public"],
+)
